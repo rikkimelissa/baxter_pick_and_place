@@ -10,8 +10,11 @@ from trajectory_msgs.msg import (
     JointTrajectoryPoint,
 )
 from geometry_msgs.msg import Pose
+from urdf_parser_py.urdf import URDF
+from pykdl_utils.kdl_kinematics import KDLKinematics
 
-#rostopic pub -1 "block_position" geometry_msgs/Pose -- '['2.0' , '0.0', '0.0']' '['0', '0', '0', '0']'
+#rostopic pub -1 "block_position" geometry_msgs/Pose -- '['.178' , '-.46', '-.57']' '['.4879', '.8709', '-.0285', '.0513']'
+#rostopic pub -1 "block_position" geometry_msgs/Pose -- '['-.17' , '-.15', '-.']' '['.4879', '.8709', '-.0285', '.0513']'
 
 class Trajectory(object):
     def __init__(self, limb):
@@ -65,10 +68,18 @@ class Trajectory(object):
     
     def execute_move(self, data):
         positions = {'right': [0, 0, 0, 0, 0, 0, 0]}
-        #    positions = {'right': [-0.11, -.62, -1.15, 1.32, .80, 1.27, 2.39]}
-        limb_interface = baxter_interface.limb.Limb('right')
-        current_angles = [limb_interface.joint_angle(joint) for joint in limb_interface.joint_names()]
-        self.add_point(current_angles, 0.0)
+#        positions = {'right': [-0.32615787,  1.04673629,  0.03483556,  0.48432787,  0.065597  ,
+#       -0.06068658, -0.1981413 ]}
+#        positions = {'right': [-0.17033941, -0.15113857, -1.012373  ,  1.28620707,  1.18743866,
+#        0.96558141,  2.29758662]}
+#        limb_interface = baxter_interface.limb.Limb('right')
+#        current_angles = [limb_interface.joint_angle(joint) for joint in limb_interface.joint_names()]
+        robot = URDF.from_parameter_server()
+        base_link = robot.get_root()
+        kdl_kin = KDLKinematics(robot, base_link, 'right_gripper_base')
+        pose = turn_from_quat
+        q_ik = kdl_kin.inverse(pose, q+0.3)
+        self.add_point(q_ik, 0.0)
         self.add_point(positions['right'], 7.0)
         self.start()
         self.wait(9)
