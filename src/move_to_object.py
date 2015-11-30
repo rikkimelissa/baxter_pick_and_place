@@ -9,6 +9,9 @@ from baxter_interface import CHECK_VERSION
 from trajectory_msgs.msg import (
     JointTrajectoryPoint,
 )
+from geometry_msgs.msg import Point
+
+#rostopic pub -1 "block_position" geometry_msgs/Point -- '2.0'  '0.0' '0.0'
 
 class Trajectory(object):
     def __init__(self, limb):
@@ -28,6 +31,7 @@ class Trajectory(object):
             rospy.signal_shutdown("Timed out waiting for Action Server")
             sys.exit(1)
         self.clear(limb)
+        self._done = False
         
     def add_point(self, positions, time):
         point = JointTrajectoryPoint()
@@ -53,24 +57,32 @@ class Trajectory(object):
         self._goal.goal_time_tolerance = self._goal_time_tolerance
         self._goal.trajectory.joint_names = [limb + '_' + joint for joint in ['s0', 's1', 'e0', 'e1', 'w0', 'w1', 'w2']]
 
+    def set_pos_callback(self, data):
+        self._euclidean_goal = data
+        self.execute_move(data)
+    
+    def execute_move(self, data):
+        positions = {'right': [0, 0, 0, 0, 0, 0, 0]}
+        #    positions = {'right': [-0.11, -.62, -1.15, 1.32, .80, 1.27, 2.39]}
+        limb_interface = baxter_interface.limb.Limb('right')
+        current_angles = [limb_interface.joint_angle(joint) for joint in limb_interface.joint_names()]
+        self.add_point(current_angles, 0.0)
+        self.add_point(positions['right'], 7.0)
+        self.start()
+        self.wait(9)
+        self._done = True
+        print('Done')
+        
+        
 def main():
-
     rospy.init_node('move_trajectory')
+    traj = Trajectory('right')
+    rospy.Subscriber("block_position", Point, traj.set_pos_callback)
     rs = baxter_interface.RobotEnable(CHECK_VERSION)
     rs.enable()
-#    positions = {'right': [-0.11, -.62, -1.15, 1.32, .80, 1.27, 2.39]}
-    positions = {'right': [0, 0, 0, 0, 0, 0, 0]}
-    traj = Trajectory('right')
     rospy.on_shutdown(traj.stop)
-    limb_interface = baxter_interface.limb.Limb('right')
-    current_angles = [limb_interface.joint_angle(joint) for joint in limb_interface.joint_names()]
-    traj.add_point(current_angles, 0.0)
-    traj.add_point(positions['right'], 7.0)
-    traj.start()
-    traj.wait(9)
-    print("Done")
-    
-    
+    rospy.loginfo('In loop')
+    rospy.spin()   
         
 if __name__ == "__main__":
     try:
