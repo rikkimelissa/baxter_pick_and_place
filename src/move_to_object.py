@@ -9,9 +9,9 @@ from baxter_interface import CHECK_VERSION
 from trajectory_msgs.msg import (
     JointTrajectoryPoint,
 )
-from geometry_msgs.msg import Point
+from geometry_msgs.msg import Pose
 
-#rostopic pub -1 "block_position" geometry_msgs/Point -- '2.0'  '0.0' '0.0'
+#rostopic pub -1 "block_position" geometry_msgs/Pose -- '['2.0' , '0.0', '0.0']' '['0', '0', '0', '0']'
 
 class Trajectory(object):
     def __init__(self, limb):
@@ -60,6 +60,8 @@ class Trajectory(object):
     def set_pos_callback(self, data):
         self._euclidean_goal = data
         self.execute_move(data)
+        rospy.loginfo(data.position)
+        rospy.loginfo(data.orientation)
     
     def execute_move(self, data):
         positions = {'right': [0, 0, 0, 0, 0, 0, 0]}
@@ -72,12 +74,15 @@ class Trajectory(object):
         self.wait(9)
         self._done = True
         print('Done')
+    
+    def ik(self, position):
+        left_kin = baxter_kinematics('left')
         
         
 def main():
     rospy.init_node('move_trajectory')
     traj = Trajectory('right')
-    rospy.Subscriber("block_position", Point, traj.set_pos_callback)
+    rospy.Subscriber("block_position", Pose, traj.set_pos_callback)
     rs = baxter_interface.RobotEnable(CHECK_VERSION)
     rs.enable()
     rospy.on_shutdown(traj.stop)
