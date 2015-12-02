@@ -99,11 +99,18 @@ class Trajectory(object):
         pose[0:3,0:3] = R
         pose[0:3,3] = p
         # Solve for joint angles
-        q_ik = kdl_kin.inverse(pose, q0+0.3)
+        seed = 0.3
+        q_ik = kdl_kin.inverse(pose, q0+seed)
+        while q_ik == None:
+            seed += 0.3
+            q_ik = kdl_kin.inverse(pose, q0+seed)
+#            if not q_ik:
+#                q_ik = 0
+#        print q_ik
         for i in range(7):
             positions['right'][i] = q_ik[i]           
-        print q_ik
 #        self.add_point(np.array(q_ik).tolist(), 7.0)
+        print positions['right']
         self.add_point(positions['right'], 7.0)
         self.start()
         self.wait(2)
