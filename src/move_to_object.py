@@ -12,6 +12,8 @@ from trajectory_msgs.msg import (
 from geometry_msgs.msg import Pose
 from urdf_parser_py.urdf import URDF
 from pykdl_utils.kdl_kinematics import KDLKinematics
+from quat import quat_to_so3
+import numpy as np
 
 #rostopic pub -1 "block_position" geometry_msgs/Pose -- '['.178' , '-.46', '-.57']' '['.4879', '.8709', '-.0285', '.0513']'
 #rostopic pub -1 "block_position" geometry_msgs/Pose -- '['-.17' , '-.15', '-.']' '['.4879', '.8709', '-.0285', '.0513']'
@@ -66,23 +68,42 @@ class Trajectory(object):
         rospy.loginfo(data.position)
         rospy.loginfo(data.orientation)
     
-    def execute_move(self, data):
-        positions = {'right': [0, 0, 0, 0, 0, 0, 0]}
-#        positions = {'right': [-0.32615787,  1.04673629,  0.03483556,  0.48432787,  0.065597  ,
-#       -0.06068658, -0.1981413 ]}
-#        positions = {'right': [-0.17033941, -0.15113857, -1.012373  ,  1.28620707,  1.18743866,
-#        0.96558141,  2.29758662]}
+    def execute_move(self, pos):
+        rospy.loginfo('moving')
+#        # block 1
+        positions = {'right': [.318, 1.966, .594, -.855, -.47, .52, -2.64]}
+        # dropoff
+#        positions = {'right': [.306, 1.52, -.3, -1.01, -.49, .58, -2.7]}
+#        positions = {'right': [0,0,0,0,0,0,0]}
+#        # block 2
+#        positions = {'right': [.286, 1.43, .460, -.600, -.279, .707, -3.01]}
 #        limb_interface = baxter_interface.limb.Limb('right')
 #        current_angles = [limb_interface.joint_angle(joint) for joint in limb_interface.joint_names()]
+#        robot = URDF.from_parameter_server()
+#        base_link = robot.get_root()
+#        kdl_kin = KDLKinematics(robot, base_link, 'right_gripper_base')
+#        pose = turn_from_quat
+#        q_ik = kdl_kin.inverse(pose, q+0.3)
+#        self.add_point(q_ik, 0.0)
+        # Read in pose data
+        q = [pos.orientation.w, pos.orientation.x, pos.orientation.y, pos.orientation.z]
+        p =[[pos.position.x],[pos.position.y],[pos.position.z]]
+        # Convert quaternion data to rotation matrix
+        R = quat_to_so3(q);
+        # Form transformation matrix
         robot = URDF.from_parameter_server()
         base_link = robot.get_root()
         kdl_kin = KDLKinematics(robot, base_link, 'right_gripper_base')
-        pose = turn_from_quat
-        q_ik = kdl_kin.inverse(pose, q+0.3)
-        self.add_point(q_ik, 0.0)
-        self.add_point(positions['right'], 7.0)
+        q0 = kdl_kin.random_joint_angles()
+        pose = kdl_kin.forward(q0)
+        pose[0:3,0:3] = R
+        pose[0:3,3] = p
+        # Solve for joint angles
+        q_ik = kdl_kin.inverse(pose, q0+0.3)
+        print q_ik
+        self.add_point(np.array(q_ik).tolist(), 7.0)
         self.start()
-        self.wait(9)
+        self.wait(2)
         self._done = True
         print('Done')
     
@@ -94,8 +115,8 @@ def main():
     rospy.init_node('move_trajectory')
     traj = Trajectory('right')
     rospy.Subscriber("block_position", Pose, traj.set_pos_callback)
-    rs = baxter_interface.RobotEnable(CHECK_VERSION)
-    rs.enable()
+#    rs = baxter_interface.RobotEnable(CHECK_VERSION)
+#    rs.enable()
     rospy.on_shutdown(traj.stop)
     rospy.loginfo('In loop')
     rospy.spin()   
