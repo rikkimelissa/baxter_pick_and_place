@@ -168,12 +168,15 @@ matrix([[ 0.99953372, -0.03002665,  0.00554463,  0.58510058],
 '''
 Things to work on:
 - Make it slower
-- Make a different file for move to goal position
 - Make it smarter
 
 rostopic pub -1 "state" std_msgs/Int16 -- 1
 
-
+- creating trajectories and moving with set_joint_position
+- creating trajectories and moving with set_joint_velocities
+- using position mode with JTAS
+- using velocity mode with JTAS
+- using inverse dynamics with JTAS
 
 
 

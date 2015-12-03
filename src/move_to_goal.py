@@ -18,7 +18,7 @@ class Trajectory(object):
         
     def set_pos_callback(self, data):
         self._euclidean_goal = data
-        if self._state == 4:
+        if self._state == 5:
             self.execute_move(data)
     
     def set_state_callback(self, data):
@@ -37,7 +37,12 @@ class Trajectory(object):
         robot = URDF.from_parameter_server()
         base_link = robot.get_root()
         kdl_kin = KDLKinematics(robot, base_link, 'right_gripper_base')
+        # Create seed with current position
         q0 = kdl_kin.random_joint_angles()
+        limb_interface = baxter_interface.limb.Limb('right')
+        current_angles = [limb_interface.joint_angle(joint) for joint in limb_interface.joint_names()]
+        for ind in range(len(q0)):
+            q0[ind] = current_angles[ind]
         pose = kdl_kin.forward(q0)
         pose[0:3,0:3] = R
         pose[0:3,3] = p
