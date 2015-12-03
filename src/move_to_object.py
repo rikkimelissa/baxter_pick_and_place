@@ -21,20 +21,20 @@ import numpy as np
 class Trajectory(object):
     def __init__(self, limb):
         ns = 'robot/limb/' + limb + '/'
-        self._client = actionlib.SimpleActionClient(
-            ns + "follow_joint_trajectory",
-            FollowJointTrajectoryAction,
-        )
+#        self._client = actionlib.SimpleActionClient(
+#            ns + "follow_joint_trajectory",
+#            FollowJointTrajectoryAction,
+#        )
         self._goal = FollowJointTrajectoryGoal()
         self._goal_time_tolerance = rospy.Time(0.1)
         self._goal.goal_time_tolerance = self._goal_time_tolerance
-        server_up = self._client.wait_for_server(timeout=rospy.Duration(10.0))
-        if not server_up:
-            rospy.logerr("Time out waiting for Joint Trajectory"
-                        " Action Server to connect. Start the action server"
-                        " before running example.")
-            rospy.signal_shutdown("Timed out waiting for Action Server")
-            sys.exit(1)
+#        server_up = self._client.wait_for_server(timeout=rospy.Duration(10.0))
+#        if not server_up:
+#            rospy.logerr("Time out waiting for Joint Trajectory"
+#                        " Action Server to connect. Start the action server"
+#                        " before running example.")
+#            rospy.signal_shutdown("Timed out waiting for Action Server")
+#            sys.exit(1)
         self.clear(limb)
         self._done = False
         
@@ -64,9 +64,9 @@ class Trajectory(object):
 
     def set_pos_callback(self, data):
         self._euclidean_goal = data
-        self.execute_move(data)
         rospy.loginfo(data.position)
         rospy.loginfo(data.orientation)
+        self.execute_move(data)
     
     def execute_move(self, pos):
         rospy.loginfo('moving')
@@ -79,12 +79,7 @@ class Trajectory(object):
 #        positions = {'right': [.286, 1.43, .460, -.600, -.279, .707, -3.01]}
 #        limb_interface = baxter_interface.limb.Limb('right')
 #        current_angles = [limb_interface.joint_angle(joint) for joint in limb_interface.joint_names()]
-#        robot = URDF.from_parameter_server()
-#        base_link = robot.get_root()
-#        kdl_kin = KDLKinematics(robot, base_link, 'right_gripper_base')
-#        pose = turn_from_quat
-#        q_ik = kdl_kin.inverse(pose, q+0.3)
-#        self.add_point(q_ik, 0.0)
+
         # Read in pose data
         q = [pos.orientation.w, pos.orientation.x, pos.orientation.y, pos.orientation.z]
         p =[[pos.position.x],[pos.position.y],[pos.position.z]]
@@ -104,16 +99,31 @@ class Trajectory(object):
         while q_ik == None:
             seed += 0.3
             q_ik = kdl_kin.inverse(pose, q0+seed)
-#            if not q_ik:
-#                q_ik = 0
-#        print q_ik
-        for i in range(7):
-            positions['right'][i] = q_ik[i]           
-#        self.add_point(np.array(q_ik).tolist(), 7.0)
-        print positions['right']
-        self.add_point(positions['right'], 7.0)
-        self.start()
-        self.wait(2)
+        rospy.loginfo(q_ik)
+            
+        # Format joint angles as limb joint angle assignement
+        
+        limb_interface = baxter_interface.limb.Limb('right')
+#        current_angles = [limb_interface.joint_angle(joint) for joint in        limb_interface.joint_names()]
+        angles = limb_interface.joint_angles()
+        for ind, joint in enumerate(limb_interface.joint_names()):
+            angles[joint] = q_ik[ind]
+        rospy.loginfo(angles)
+        limb_interface.move_to_joint_positions(angles)
+#        limb.set_joint_positions(angles)
+    
+#        for i in range(7):
+#            positions['right'][i] = q_ik[i]           
+##        self.add_point(np.array(q_ik).tolist(), 7.0)
+#        print positions['right']
+#        # trying something else
+#        limb = baxter_interface.Limb('right')
+#        angles = limb.joint_angles()
+#        
+#        
+#        self.add_point(positions['right'], 7.0)
+#        self.start()
+#        self.wait(2)
         self._done = True
         print('Done')
     
