@@ -4,6 +4,8 @@ import tf.transformations as tr
 from math import pi
 from random import gauss
 
+# Written by Jarvis Schultz
+
 ERRRED = '\033[91m'
 ENDC = '\033[0m'
 

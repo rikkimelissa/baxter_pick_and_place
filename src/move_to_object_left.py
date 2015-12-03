@@ -35,10 +35,10 @@ class Trajectory(object):
         # Form transformation matrix
         robot = URDF.from_parameter_server()
         base_link = robot.get_root()
-        kdl_kin = KDLKinematics(robot, base_link, 'right_gripper_base')
+        kdl_kin = KDLKinematics(robot, base_link, 'left_gripper_base')
         # Create seed with current position
         q0 = kdl_kin.random_joint_angles()
-        limb_interface = baxter_interface.limb.Limb('right')
+        limb_interface = baxter_interface.limb.Limb('left')
         current_angles = [limb_interface.joint_angle(joint) for joint in limb_interface.joint_names()]
         for ind in range(len(q0)):
             q0[ind] = current_angles[ind]
@@ -90,8 +90,8 @@ class Trajectory(object):
         
         
 def main():
-    rospy.init_node('move_to_object')
-    traj = Trajectory('right')
+    rospy.init_node('move_left')
+    traj = Trajectory('left')
     rospy.Subscriber("block_position", Pose, traj.set_pos_callback)
     rospy.Subscriber("state", Int16, traj.set_state_callback)
     rospy.loginfo('In loop')

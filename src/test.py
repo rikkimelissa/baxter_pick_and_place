@@ -172,8 +172,8 @@ Things to work on:
 
 rostopic pub -1 "state" std_msgs/Int16 -- 1
 
-- creating trajectories and moving with set_joint_velocities
 - using position mode with JTAS
+- creating trajectories and moving with set_joint_velocities
 - using velocity mode with JTAS
 - using inverse dynamics with JTAS
 
