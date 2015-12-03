@@ -24,22 +24,22 @@ def publish():
 #	pos.orientation.w = 0.009427524337670811
 	
 #	# dropoff
-#	pos.position.x = 0.5297221887963302
-#	pos.position.y = -0.887243533851046
-#	pos.position.z = 0.24499675859910147
-#	pos.orientation.x = 0.8688237867733386
-#	pos.orientation.y = -0.4151335977354022
-#	pos.orientation.z = 0.21507338622355585
-#	pos.orientation.w = 0.16295018289781277
+	pos.position.x = 0.5297221887963302
+	pos.position.y = -0.887243533851046
+	pos.position.z = 0.24499675859910147
+	pos.orientation.x = 0.8688237867733386
+	pos.orientation.y = -0.4151335977354022
+	pos.orientation.z = 0.21507338622355585
+	pos.orientation.w = 0.16295018289781277
 #	
 #    # pickup 2
-	pos.position.x = 0.7340259833173312
-	pos.position.y = -0.3390045079404269
-	pos.position.z = -0.008877793884743197
-	pos.orientation.x = 0.9982126584026627
-	pos.orientation.y = -0.042582835241045204
-	pos.orientation.z = 0.03406633140632769
-	pos.orientation.w = -0.02444740910683879
+#	pos.position.x = 0.7340259833173312
+#	pos.position.y = -0.3390045079404269
+#	pos.position.z = -0.008877793884743197
+#	pos.orientation.x = 0.9982126584026627
+#	pos.orientation.y = -0.042582835241045204
+#	pos.orientation.z = 0.03406633140632769
+#	pos.orientation.w = -0.02444740910683879
 	rospy.loginfo(pos)
 	pub.publish(pos)
 #	drive_cmd.position = [.178 , -.46, -.57]

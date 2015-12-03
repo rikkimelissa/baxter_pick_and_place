@@ -18,10 +18,10 @@ def publish():
 	pos.position.x = 0.5860378497814306
 	pos.position.y = -0.2398009942128175
 	pos.position.z = 0.014414851085098497
-	pos.orientation.x = 0.9998354512770873
-	pos.orientation.y = -0.01507125585682272
-	pos.orientation.z = 0.0036123955077364107
-	pos.orientation.w = 0.009427524337670811
+	pos.orientation.x = 0
+	pos.orientation.y = 0
+	pos.orientation.z = 1
+	pos.orientation.w = 1
 	
 #	# dropoff
 #	pos.position.x = 0.5297221887963302
