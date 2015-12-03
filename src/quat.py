@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+
+# Written by Jarvis Schultz
 import numpy as np
 import tf.transformations as tr
 from math import pi
