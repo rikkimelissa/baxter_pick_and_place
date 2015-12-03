@@ -18,13 +18,15 @@ class Trajectory(object):
         
     def set_pos_callback(self, data):
         self._euclidean_goal = data
-        if self._state == 2:
+        if self._state == 4:
             self.execute_move(data)
     
     def set_state_callback(self, data):
         self._state = data.data
     
     def execute_move(self, pos):
+        right_gripper = baxter_interface.Gripper('right')
+        right_gripper.close()
         rospy.loginfo('moving')
         # Read in pose data
         q = [pos.orientation.w, pos.orientation.x, pos.orientation.y, pos.orientation.z]
@@ -55,13 +57,18 @@ class Trajectory(object):
         rospy.loginfo(angles)
         
         # Send joint move command
+        angles = limb_interface.joint_angles()
+        q = [-.315, -1.019, .3064, 1.5286, -.4912, .5844, -2.7899]
+        for ind, joint in enumerate(limb_interface.joint_names()):
+            angles[joint] = q[ind]
         limb_interface.move_to_joint_positions(angles)
+        right_gripper.open()
         self._done = True
         print('Done')
         
         
 def main():
-    rospy.init_node('move_to_object')
+    rospy.init_node('move_to_goal')
     traj = Trajectory('right')
     rospy.Subscriber("block_position", Pose, traj.set_pos_callback)
     rospy.Subscriber("state", Int16, traj.set_state_callback)

@@ -15,6 +15,9 @@ q0 = kdl_kin.random_joint_angles()
 # 0.027413666235402978]
 for ind in range(len(q)):
     q[ind] = current_angles[ind]
+    
+for ind in range(len(q_ik)):
+    q[ind] = current_angles[ind]
 #q = q*0
 pose = kdl_kin.forward(q0) # forward kinematics (returns homogeneous 4x4 numpy.mat)
 pose[2,3] = 0.01
@@ -27,6 +30,11 @@ if q_ik is not None:
 
 limb_interface = baxter_interface.limb.Limb('right')
 current_angles = [limb_interface.joint_angle(joint) for joint in limb_interface.joint_names()]
+x = limb.joint_angles()
+
+for ind, joint in enumerate(limb_interface.joint_names()):
+    x[joint] = q_ik[ind]
+
 
 #import rospy
 #from baxter_pykdl import baxter_kinematics
@@ -159,10 +167,11 @@ matrix([[ 0.99953372, -0.03002665,  0.00554463,  0.58510058],
 
 '''
 Things to work on:
-Turn quaternion positions into matrix form
+- Make it slower
+- Make a different file for move to goal position
+- Make it smarter
 
-Fix empty ik positions
-Move from one position to the next
+rostopic pub -1 "state" std_msgs/Int16 -- 1
 
 
 
