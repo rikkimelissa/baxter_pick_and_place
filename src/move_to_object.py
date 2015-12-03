@@ -49,7 +49,7 @@ class Trajectory(object):
         Xend = copy(np.asarray(pose))
         
         # Compute straight-line trajectory for path
-        N = 5
+        N = 500
         Xlist = CartesianTrajectory(Xstart, Xend, 1, N, 5)
         thList = np.empty((N,7))
         thList[0] = q0;
@@ -82,7 +82,7 @@ class Trajectory(object):
             rospy.loginfo(angles)
             
             # Send joint move command
-#            limb_interface.move_to_joint_position_speed(1)
+            limb_interface.set_joint_position_speed(.01)
             limb_interface.set_joint_positions(angles)
         self._done = True
         print('Done')
