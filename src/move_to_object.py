@@ -62,7 +62,7 @@ class Trajectory(object):
                 seed += 0.3
                 q_ik = kdl_kin.inverse(pose, q0+seed)
             thList[i+1] = q_ik
-            rospy.loginfo(q_ik)
+#            rospy.loginfo(q_ik)
         
 #        # Solve for joint angles
 #        seed = 0.3
@@ -79,7 +79,8 @@ class Trajectory(object):
             angles = limb_interface.joint_angles()
             for ind, joint in enumerate(limb_interface.joint_names()):
                 angles[joint] = q_ik[ind]
-            rospy.loginfo(angles)
+#            rospy.loginfo(angles)
+            rospy.sleep(.003)
             
             # Send joint move command
             limb_interface.set_joint_position_speed(.01)

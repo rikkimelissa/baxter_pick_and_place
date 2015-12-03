@@ -52,14 +52,14 @@ class Trajectory(object):
         while q_ik == None:
             seed += 0.3
             q_ik = kdl_kin.inverse(pose, q0+seed)
-        rospy.loginfo(q_ik)
+#        rospy.loginfo(q_ik)
             
         # Format joint angles as limb joint angle assignement      
         limb_interface = baxter_interface.limb.Limb('right')
         angles = limb_interface.joint_angles()
         for ind, joint in enumerate(limb_interface.joint_names()):
             angles[joint] = q_ik[ind]
-        rospy.loginfo(angles)
+#        rospy.loginfo(angles)
         
         # Send joint move command
         angles = limb_interface.joint_angles()
