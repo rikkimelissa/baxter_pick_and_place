@@ -10,7 +10,7 @@ from std_msgs.msg import Int16
 
 def publish():
 
-	pub = rospy.Publisher('block_position', Pose, queue_size = 10)
+	pub = rospy.Publisher('hand_position', Pose, queue_size = 10)
         state = rospy.Publisher('state', Int16, queue_size = 10)
 	rospy.init_node('publisher')
 	rate = rospy.Rate(60)

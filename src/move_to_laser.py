@@ -126,6 +126,7 @@ def main():
     rospy.init_node('move_to_object')
     traj = Trajectory('right')
     rospy.Subscriber("block_position", Pose, traj.set_pos_callback)
+    rospy.Subscriber("hand_position", Pose, traj.set_pos_callback)
     rospy.Subscriber("state", Int16, traj.set_state_callback)
     rospy.Subscriber("/robot/range/right_hand_range/state", Range, traj.laserscan_callback)
     rospy.loginfo('In loop')
