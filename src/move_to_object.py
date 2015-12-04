@@ -10,6 +10,7 @@ from pykdl_utils.kdl_kinematics import KDLKinematics
 from quat import quat_to_so3
 import numpy as np
 from std_msgs.msg import Int16
+from sensor_msgs.msg import Range
 from functions import JointTrajectory, ScrewTrajectory, CartesianTrajectory
 
 class Trajectory(object):
@@ -19,11 +20,18 @@ class Trajectory(object):
         
     def set_pos_callback(self, data):
         self._euclidean_goal = data
+
         if self._state == 2:
             self.execute_move(data)
+
+        if self._state == 3:
+            self.fine_move(data)
     
     def set_state_callback(self, data):
         self._state = data.data
+
+    def laserscan_callback(self, data):
+        self._laserscan = data
     
     def execute_move(self, pos):
         rospy.loginfo('moving')
@@ -83,8 +91,33 @@ class Trajectory(object):
             rospy.sleep(.003)
             
             # Send joint move command
-            limb_interface.set_joint_position_speed(.01)
+            limb_interface.set_joint_position_speed(.3)
             limb_interface.set_joint_positions(angles)
+        self._done = True
+        print('Done')
+
+    def fine_move(self, xstart):
+        #set initial position
+        xmod = xstart
+        
+        while self._laserscan.range > 0.1:
+            xmod.position.x = xstart.position.x
+            xmod.position.y = xstart.position.y
+
+            xmod.orientation.x = xstart.orientation.x
+            xmod.orientation.y = xstart.orientation.y
+            xmod.orientation.z = xstart.orientation.z
+            xmod.orientation.w = xstart.orientation.w
+
+            if self._laserscan.range >= self._laserscan.max_range:
+                xmod.position.z = xmod.position.z - 0.2
+            else:
+                xmod.position.z = xmod.position.z - self._laserscan.range
+    
+            self.execute_move(xmod)
+
+        #close gripper
+        self._state = 2
         self._done = True
         print('Done')
         
@@ -94,6 +127,7 @@ def main():
     traj = Trajectory('right')
     rospy.Subscriber("block_position", Pose, traj.set_pos_callback)
     rospy.Subscriber("state", Int16, traj.set_state_callback)
+    rospy.Subscriber("/robot/range/right_hand_range/state", Range, traj.laserscan_callback)
     rospy.loginfo('In loop')
     rospy.spin()   
         

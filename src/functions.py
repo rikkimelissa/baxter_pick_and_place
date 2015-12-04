@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import numpy as np
-from math import sin, cos, pi, tan, acos
+from math import sin, cos, pi, tan, acos, sqrt
 from numpy.linalg import inv
 
 '''
