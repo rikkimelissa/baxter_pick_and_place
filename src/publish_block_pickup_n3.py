@@ -37,7 +37,7 @@ def publish():
 #    # pickup 2
 	pos.position.x = 0.8
 	pos.position.y = -0.3390045079404269
-	pos.position.z = -0.008877793884743197
+	pos.position.z = 0.2
 	pos.orientation.x = 0.9982126584026627
 	pos.orientation.y = -0.042582835241045204
 	pos.orientation.z = 0.03406633140632769

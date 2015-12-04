@@ -99,8 +99,9 @@ class Trajectory(object):
     def fine_move(self, xstart):
         #set initial position
         xmod = xstart
+        zmin = 0.05
         
-        while self._laserscan.range > 0.11:
+        while self._laserscan.range > zmin:
             xmod.position.x = xstart.position.x
             xmod.position.y = xstart.position.y
 
@@ -112,7 +113,7 @@ class Trajectory(object):
             if self._laserscan.range >= self._laserscan.max_range:
                 xmod.position.z = xmod.position.z - 0.2
             else:
-                xmod.position.z = xmod.position.z - self._laserscan.range
+                xmod.position.z = xmod.position.z - self._laserscan.range + zmin
     
             self.execute_move(xmod)
 
