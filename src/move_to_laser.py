@@ -124,7 +124,7 @@ class Trajectory(object):
         
         
 def main():
-    rospy.init_node('move_to_object')
+    rospy.init_node('move_to_laser')
     traj = Trajectory('right')
     rospy.Subscriber("block_position", Pose, traj.set_pos_callback)
     rospy.Subscriber("hand_position", Pose, traj.set_pos_callback)
