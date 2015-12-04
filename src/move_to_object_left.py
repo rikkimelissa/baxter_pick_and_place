@@ -85,6 +85,8 @@ class Trajectory(object):
             # Send joint move command
             limb_interface.set_joint_position_speed(.3)
             limb_interface.set_joint_positions(angles)
+            pos = 
+            pub.publish(pos)
         self._done = True
         print('Done')
         

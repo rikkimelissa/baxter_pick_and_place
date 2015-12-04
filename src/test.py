@@ -63,7 +63,6 @@ for ind, joint in enumerate(limb_interface.joint_names()):
 #print sum(c)
 
 # out below table
-limb_interface.joint_angles()
 Out[36]: 
 {'right_e0': 0.07746602969970703,
  'right_e1': 1.6743400280639649,

@@ -19,15 +19,18 @@ class Trajectory(object):
         
     def set_pos_callback(self, data):
         self._euclidean_goal = data
+        rospy.loginfo(data)
         if self._state == 2:
             self.execute_move(data)
     
     def set_state_callback(self, data):
+        rospy.loginfo(data.data)
         self._state = data.data
     
     def execute_move(self, pos):
         rospy.loginfo('moving')
         # Read in pose data
+        pos.orientation.z += .15
         q = [pos.orientation.w, pos.orientation.x, pos.orientation.y, pos.orientation.z]
         p =[[pos.position.x],[pos.position.y],[pos.position.z]]
         # Convert quaternion data to rotation matrix
@@ -85,6 +88,14 @@ class Trajectory(object):
             # Send joint move command
             limb_interface.set_joint_position_speed(.3)
             limb_interface.set_joint_positions(angles)
+        
+            pub_hand = rospy.Publisher('hand_position', Pose, queue_size = 10)
+            pub_state = rospy.Publisher('state', Int16, queue_size = 10)
+            
+        rospy.loginfo(5) 
+        pub_state.publish(5)                    
+        rospy.loginfo(pos)
+        pub_hand.publish(pos)  
         self._done = True
         print('Done')
         
