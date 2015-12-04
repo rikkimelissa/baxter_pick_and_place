@@ -14,11 +14,12 @@ def xdisplay_pub(data):
     
 def get_image():
     rospy.init_node('image_data', anonymous=False)
-    rate = rospy.Rate(1) # 10hz
+    rate = rospy.Rate(10) # 10hz
    
     #may add some comment about timing
     while not rospy.is_shutdown():
-        rospy.Subscriber("/usb_cam/image_raw", Image, xdisplay_pub)
+        #rospy.Subscriber("/usb_cam/image_raw", Image, xdisplay_pub)
+        rospy.Subscriber("/slow_image", Image, xdisplay_pub)
         #replace subscibed topic to /cameras/head_camera
         # Sleep to allow for image to be published.
         rate.sleep()
