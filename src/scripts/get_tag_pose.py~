@@ -13,7 +13,11 @@ from std_msgs.msg import Header
 import roslib
 import math
 
-#from visualization_msgs.msg import Marker
+
+#two goals:
+#1. create algorithm to sort if many blocks with same tage are seen, or if many blocks with different tags are seen
+#2. select the block to get
+#3. cutout the number of images broadcast to only get a picture per second
 
 
 def select_tag(data):
@@ -25,23 +29,21 @@ def select_tag(data):
     
 def get_pose():
     rospy.init_node('get_pose', anonymous=False)
-    rate = rospy.Rate(10) # 10hz
+    subrate = rospy.Rate(1) # 10hz
     listener = tf.TransformListener()
+    
     #to create an offset we can use the following(sec 8.1, 8.2):
     #http://wiki.ros.org/tf/Overview/Transformations
     #transform formatting:
     #http://wiki.ros.org/tf/Overview/Using%20Published%20Transforms
     #initialize lists
-    transe = []
+    trans = []
     rot = []
    
     while not rospy.is_shutdown(): #while != some function that contniues to look until the state changes
-        #rospy.Subscriber("/ar_pose_marker", av_msg, callback) 
-        #av_msg = AlvarMarker()
-        #tag_id = av_msg.id
 
-        #this method 
-        
+
+        dt = 0
         try:
             (trans[0],rot[0]) = listener.lookupTransform('/head_camera', '/ar_marker_1', rospy.Time(0))
         except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
@@ -67,12 +69,12 @@ def get_pose():
         except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
             continue
             
-        for i,j in trans,rot:
+        for i in trans,rot:
             #run until both lists are full? or until some length paramet is satisfied?
             
         #call select tag function
         select_tag(trans,rot)
-        rate.sleep()
+        subrate.sleep()
 
     
 if __name__ == '__main__':

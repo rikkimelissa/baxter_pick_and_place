@@ -19,6 +19,10 @@ def listener():
 		#print count
 		global count
 		count = count + 1
+		print x
+        #rospy.Subscriber("/ar_pose_marker", av_msg, callback) 
+        #av_msg = AlvarMarker()
+        #tag_id = av_msg.id
 		
 
 def callback(data):

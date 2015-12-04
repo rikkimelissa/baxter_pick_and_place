@@ -4,6 +4,8 @@ import rospy
 from ar_track_alvar_msgs.msg import AlvarMarkers, AlvarMarker
 from geometry_msgs.msg import PoseStamped,Pose
 
+#from visualization_msgs.msg import Marker
+
 pose_msg = Pose()
 
 count = 1
@@ -20,7 +22,10 @@ def listener():
 		global count
 		count = count + 1
 		print x
-		
+        #rospy.Subscriber("/ar_pose_marker", av_msg, callback) 
+        #av_msg = AlvarMarker()
+        #tag_id = av_msg.id
+
 
 def callback(data):
 	print "callback"
