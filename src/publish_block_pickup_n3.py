@@ -51,7 +51,7 @@ def publish():
 #	pos.orientation.y = -0.01507125585682272
 #	pos.orientation.z = 0.0036123955077364107
 #	pos.orientation.w = 0.009427524337670811
-        state.publish(3)
+        state.publish(4)
 	rospy.loginfo(pos)
 	pub.publish(pos)
 #	drive_cmd.position = [.178 , -.46, -.57]

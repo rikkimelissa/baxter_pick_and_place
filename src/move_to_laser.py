@@ -16,15 +16,15 @@ from functions import JointTrajectory, ScrewTrajectory, CartesianTrajectory
 class Trajectory(object):
     def __init__(self, limb):
         self._done = False
-        self._state = 2
+        self._state = 0
         
     def set_pos_callback(self, data):
         self._euclidean_goal = data
 
-        if self._state == 2:
-            self.execute_move(data)
+#        if self._state == 2:
+#            self.execute_move(data)
 
-        if self._state == 3:
+        if self._state == 4:
             self.fine_move(data)
     
     def set_state_callback(self, data):
@@ -117,8 +117,8 @@ class Trajectory(object):
     
             self.execute_move(xmod)
 
-        #close gripper
-        self._state = 2
+        self._state = 5
+        state.publish(self._state)
         self._done = True
         print('Done')
         
@@ -130,6 +130,7 @@ def main():
     rospy.Subscriber("hand_position", Pose, traj.set_pos_callback)
     rospy.Subscriber("state", Int16, traj.set_state_callback)
     rospy.Subscriber("/robot/range/right_hand_range/state", Range, traj.laserscan_callback)
+    state = rospy.Publisher('state', Int16, queue_size = 10)
     rospy.loginfo('In loop')
     rospy.spin()   
         
