@@ -100,7 +100,7 @@ class Trajectory(object):
         #set initial position
         xmod = xstart
         
-        while self._laserscan.range > 0.1:
+        while self._laserscan.range > 0.11:
             xmod.position.x = xstart.position.x
             xmod.position.y = xstart.position.y
 

@@ -33,7 +33,7 @@ def publish():
 #	pos.orientation.w = 0.16295018289781277
 #	
 #    # pickup 2
-	pos.position.x = 0.7340259833173312
+	pos.position.x = 0.8
 	pos.position.y = -0.3390045079404269
 	pos.position.z =  0
 	pos.orientation.x = 0.9982126584026627
