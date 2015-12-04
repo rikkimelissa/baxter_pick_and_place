@@ -3,7 +3,7 @@
 #import cv2
 #import cv_bridge
 import rospy
-from sensor_msgs.msg import Image
+from sensor_msgs.msg import Image,CameraInfo
 
 
 def xdisplay_pub(data):
@@ -13,7 +13,7 @@ def xdisplay_pub(data):
 
     
 def sub_image():
-    rospy.init_node('image_data1', anonymous=False)
+    rospy.init_node('image_slow', anonymous=False)
     #rate = rospy.Rate(1) # 1 hz
     count = 0
     #may add some comment about timing

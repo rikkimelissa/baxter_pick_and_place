@@ -3,7 +3,7 @@
 #import cv2
 #import cv_bridge
 import rospy
-from sensor_msgs.msg import Image
+from sensor_msgs.msg import Image,CameraInfo
 
 
 def xdisplay_pub(data):
