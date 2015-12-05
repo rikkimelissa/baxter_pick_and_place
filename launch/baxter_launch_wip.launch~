@@ -16,6 +16,9 @@
         <param name = "res_val" value = "1280x800"/>
     </node>
     
+    <node name ="display_image" pkg = "baxter_vis" type = "xdisplay_pub.py">
+    </node>
+    
     <node name = "head_state_node" pkg = "baxter_vis" type = "head_state_node.py">
     </node>
         

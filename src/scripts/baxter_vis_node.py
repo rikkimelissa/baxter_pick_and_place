@@ -7,9 +7,9 @@ import tf
 #http://wiki.ros.org/tf/Overview/Using%20Published%20Transforms
 #to create an offset we can use the following(sec 8.1, 8.2):
 from sensor_msgs.msg import Image 
-#from ar_track_alvar_msgs.msg import AlvarMarker
+from ar_track_alvar_msgs.msg import AlvarMarker
 #from sensor_msgs.msg import JointState 
-from geometry_msgs.msg import Pose
+from geometry_msgs.msg import PoseStamped, Pose, Point, Quaternion
 from std_msgs.msg import Header
 
 
@@ -40,29 +40,32 @@ def get_tag_pose():
     
     dt = 0
     try:
-        (trans[0],rot[0]) = listener.lookupTransform('left_hand_camera', '/ar_marker_1', rospy.Time(0))
+        #(trans[0],rot[0]) = listener.lookupTransform('right_hand_camera', '/ar_marker_1', rospy.Time(0))
+        (trans[0],rot[0]) = listener.lookupTransform('/head_camera', '/ar_marker_1', rospy.Time(0))
+    except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
+        continue
+    '''
+    try:
+        (trans[1],rot[1]) = listener.lookupTransform('right_hand_camera', '/ar_marker_2', rospy.Time(0))
     except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
         continue
     try:
-        (trans[1],rot[1]) = listener.lookupTransform('left_hand_camera', '/ar_marker_2', rospy.Time(0))
+        (trans[2],rot[2]) = listener.lookupTransform('right_hand_camera', '/ar_marker_3', rospy.Time(0))
     except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
         continue
     try:
-        (trans[2],rot[2]) = listener.lookupTransform('left_hand_camera', '/ar_marker_3', rospy.Time(0))
+        (trans[3],rot[3]) = listener.lookupTransform('right_hand_camera', '/ar_marker_4', rospy.Time(0))
     except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
         continue
     try:
-        (trans[3],rot[3]) = listener.lookupTransform('left_hand_camera', '/ar_marker_4', rospy.Time(0))
+        (trans[4],rot[4]) = listener.lookupTransform('right_hand_camera', '/ar_marker_5', rospy.Time(0))
     except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
         continue
     try:
-        (trans[4],rot[4]) = listener.lookupTransform('left_hand_camera', '/ar_marker_5', rospy.Time(0))
+        (trans[5],rot[5]) = listener.lookupTransform('right_hand_camera', '/ar_marker_6', rospy.Time(0))
     except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
         continue
-    try:
-        (trans[5],rot[5]) = listener.lookupTransform('left_hand_camera', '/ar_marker_6', rospy.Time(0))
-    except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
-        continue
+    '''
         
     #for i in trans,rot:
         #run until both lists are full? or until some length paramet is satisfied?
@@ -82,11 +85,13 @@ def get_image():
     while not rospy.is_shutdown():
         #rospy.Subscriber("/usb_cam/image_raw", Image, xdisplay_pub)
         #rospy.subscriber("/cameras/right_hand_camera/image",Image, get_tag_pose)
-        if count%10 == 0:
-            rospy.Subscriber("/cameras/right_hand_camera/image", Image, xdisplay_pub)
+        #if count%10 == 0:
+            #rospy.Subscriber("/cameras/right_hand_camera/image", Image, xdisplay_pub)
+        #rospy.Subscriber("/usb_cam/image_raw", Image, xdisplay_pub)
         count = count + 1
-        if count%2 == 0
-            rospy.Subscriber("/cameras/right_hand_camera/image", Image, get_tag_pose)
+        #if count%2 == 0
+        #    rospy.Subscriber("/cameras/right_hand_camera/image", Image, get_tag_pose)
+        rospy.Subscriber("/usb_cam/image_raw", Image, get_tag_pose)
         rate.sleep()
 
 

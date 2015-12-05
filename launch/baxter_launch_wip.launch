@@ -24,5 +24,16 @@
         
     <node name = "baxter_vis" pkg = "baxter_vis" type = "baxter_vis_node.py">
     </node>
+    
+    <launch>
+
+    <node name = "enable_robot" pkg = "baxter_tools" type="enable_robot.py">
+        <param name = "val" value = "-e"/>
+    </node>
+    <node name = "run_robot" pkg = "baxter_gazebo" type = "baxter_world.launch">
+    </node>
+    <include file = "$(find baxter_gazebo)/launch/baxter_world.launch" />
+    
+</launch>
 
 </launch>
