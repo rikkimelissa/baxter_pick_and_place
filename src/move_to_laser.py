@@ -57,42 +57,60 @@ class Trajectory(object):
         Xend = copy(np.asarray(pose))
         
         # Compute straight-line trajectory for path
-        N = 500
-        Xlist = CartesianTrajectory(Xstart, Xend, 1, N, 5)
-        thList = np.empty((N,7))
-        thList[0] = q0;
+#        N = 500
+#        Xlist = CartesianTrajectory(Xstart, Xend, 1, N, 5)
+#        thList = np.empty((N,7))
+#        thList[0] = q0;
         
-        for i in range(N-1):
-        # Solve for joint angles
-            seed = 0
-            q_ik = kdl_kin.inverse(Xlist[i+1], thList[i])
-            while q_ik == None:
-                seed += 0.3
-                q_ik = kdl_kin.inverse(pose, q0+seed)
-            thList[i+1] = q_ik
+#        for i in range(N-1):
+#        # Solve for joint angles
+#            seed = 0
+#            q_ik = kdl_kin.inverse(Xlist[i+1], thList[i])
+#            while q_ik == None:
+#                seed += 0.3
+#                q_ik = kdl_kin.inverse(pose, q0+seed)
+#            thList[i+1] = q_ik
 #            rospy.loginfo(q_ik)
         
-#        # Solve for joint angles
-#        seed = 0.3
-#        q_ik = kdl_kin.inverse(pose, q0+seed)
-#        while q_ik == None:
-#            seed += 0.3
-#            q_ik = kdl_kin.inverse(pose, q0+seed)
-#        rospy.loginfo(q_ik)
+        # Solve for joint angles
+        seed = 0.3
+        q_ik = kdl_kin.inverse(pose, q0+seed)
+        print(q_ik)
+        while q_ik == None:
+            seed += 0.3
+            q_ik = kdl_kin.inverse(pose, q0+seed)
+        rospy.loginfo(q_ik)
         
 #        q_list = JointTrajectory(q0,q_ik,1,100,5)
         
 #        for q in q_list:
-            # Format joint angles as limb joint angle assignment      
-            angles = limb_interface.joint_angles()
-            for ind, joint in enumerate(limb_interface.joint_names()):
-                angles[joint] = q_ik[ind]
+#            # Format joint angles as limb joint angle assignment      
+#            angles = limb_interface.joint_angles()
+#            for ind, joint in enumerate(limb_interface.joint_names()):
+#                angles[joint] = q_ik[ind]
 #            rospy.loginfo(angles)
-            rospy.sleep(.003)
+#            rospy.sleep(.003)
             
-            # Send joint move command
-            limb_interface.set_joint_position_speed(.3)
+#            # Send joint move command
+#            limb_interface.set_joint_position_speed(.3)
+#            limb_interface.set_joint_positions(angles)
+  
+        # Send joint move command
+
+        q_goal  = JointTrajectory(q0,q_ik,1,100,5)
+        print(q_goal)
+
+        angles = limb_interface.joint_angles()       
+        for ind in range(len(q0)):
+            q0[ind] = current_angles[ind]
+        
+        q_list = JointTrajectory(q0,np.asarray(q_goal),1,10,5)
+        for q in q_list:
+            for ind, joint in enumerate(limb_interface.joint_names()):
+                angles[joint] = q[ind]
             limb_interface.set_joint_positions(angles)
+            rospy.sleep(.3)
+
         self._done = True
         print('Done')
 
