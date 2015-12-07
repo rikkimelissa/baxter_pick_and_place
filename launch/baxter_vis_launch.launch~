@@ -1,11 +1,8 @@
 <launch>
 
-    <node name = "close_cam" pkg = "baxter_tools" type = "camera_control.py" args="--close head_camera"/>
-
-    <node name = "open_cam" pkg = "baxter_tools" type = "camera_control.py" args="--open right_hand_camera --resolution 1280x800"/>
+    <node name = "open_cam" pkg = "baxter_interface" type = "camera_control.py" args="--open right_hand_camera --resolution 1280x800"/>
     
     <include file = "$(find baxter_vis)/launch/indiv_tag_baxter.launch" />
     
-    <node name = "baxter_vis" pkg = "baxter_vis" type = "baxter_vis_node.py"/>
 
 </launch>
