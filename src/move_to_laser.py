@@ -98,10 +98,12 @@ class Trajectory(object):
 
     def fine_move(self, xstart):
         #set initial position
+        print("start")
         xmod = xstart
         zmin = 0.05
         
         while self._laserscan.range > zmin:
+            print("while")
             xmod.position.x = xstart.position.x
             xmod.position.y = xstart.position.y
 
@@ -117,8 +119,10 @@ class Trajectory(object):
     
             self.execute_move(xmod)
 
-        self._state = 5
-        state.publish(self._state)
+        pub_state = rospy.Publisher('state', Int16, queue_size = 10)
+
+        rospy.loginfo(5) 
+        pub_state.publish(5)                    
         self._done = True
         print('Done')
         
@@ -126,11 +130,9 @@ class Trajectory(object):
 def main():
     rospy.init_node('move_to_laser')
     traj = Trajectory('right')
-    rospy.Subscriber("block_position", Pose, traj.set_pos_callback)
     rospy.Subscriber("hand_position", Pose, traj.set_pos_callback)
     rospy.Subscriber("state", Int16, traj.set_state_callback)
     rospy.Subscriber("/robot/range/right_hand_range/state", Range, traj.laserscan_callback)
-    state = rospy.Publisher('state', Int16, queue_size = 10)
     rospy.loginfo('In loop')
     rospy.spin()   
         

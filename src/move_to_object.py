@@ -92,8 +92,8 @@ class Trajectory(object):
             pub_hand = rospy.Publisher('hand_position', Pose, queue_size = 10)
             pub_state = rospy.Publisher('state', Int16, queue_size = 10)
             
-        rospy.loginfo(5) 
-        pub_state.publish(5)                    
+        rospy.loginfo(4) 
+        pub_state.publish(4)                    
         rospy.loginfo(pos)
         pub_hand.publish(pos)  
         self._done = True
