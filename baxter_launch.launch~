@@ -1,0 +1,10 @@
+<launch>
+
+    <node name = "enable_robot" pkg = "baxter_tools" type="enable_robot.py">
+        <param name = "val" value = "-e"/>
+    </node>
+    <node name = "run_robot" pkg = "baxter_gazebo" type = "baxter_world.launch">
+    </node>
+    <include file = "$(find baxter_gazebo)/baxter_world.launch" />
+    
+</launch>

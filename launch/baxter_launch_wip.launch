@@ -1,0 +1,39 @@
+<launch>
+
+    #<node name = "enable_robot" pkg = "baxter_tools" type="enable_robot.py">
+        <param name = "val" value = "-e"/>
+    </node>
+    
+    <node name = "close_cam" pkg = "baxter_tools" type = "camera_control.py">
+        <param name ="close" value = "-c"/>
+        <param name ="camera_name" value = "left_hand_camera"/>
+    </node>
+    
+    <node name = "open_head_cam" pkg = "baxter_tools" type = "camera_control.py">
+        <param name= "open" value = "-o"/>
+        <param name ="camera_name" value = "head_camera"/>
+        <param name = "resol." value = "-r"/>
+        <param name = "res_val" value = "1280x800"/>
+    </node>
+    
+    <node name ="display_image" pkg = "baxter_vis" type = "xdisplay_pub.py">
+    </node>
+    
+    <node name = "head_state_node" pkg = "baxter_vis" type = "head_state_node.py">
+    </node>
+        
+    <node name = "baxter_vis" pkg = "baxter_vis" type = "baxter_vis_node.py">
+    </node>
+    
+    <launch>
+
+    <node name = "enable_robot" pkg = "baxter_tools" type="enable_robot.py">
+        <param name = "val" value = "-e"/>
+    </node>
+    <node name = "run_robot" pkg = "baxter_gazebo" type = "baxter_world.launch">
+    </node>
+    <include file = "$(find baxter_gazebo)/launch/baxter_world.launch" />
+    
+</launch>
+
+</launch>

@@ -1,0 +1,7 @@
+<launch>
+
+    <node name = "usb_cam_test" pkg = "usb_cam" type ="usb_cam_node" args="_video_device:=/dev/video0 _pixel_format:=yuyv _camera_name:=tracker_camera" />
+
+    <include file = "$(find baxter_vis)/launch/indiv_test_usb_cam.launch" />
+    
+</launch>

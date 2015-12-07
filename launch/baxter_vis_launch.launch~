@@ -1,0 +1,8 @@
+<launch>
+
+    <node name = "open_cam" pkg = "baxter_interface" type = "camera_control.py" args="--open right_hand_camera --resolution 1280x800"/>
+    
+    <include file = "$(find baxter_vis)/launch/indiv_tag_baxter.launch" />
+    
+
+</launch>
