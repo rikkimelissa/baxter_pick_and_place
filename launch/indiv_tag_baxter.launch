@@ -5,7 +5,7 @@
 	<arg name="cam_image_topic" default="/cameras/right_hand_camera/image" />
 	<arg name="cam_info_topic" default="/cameras/right_hand_camera/camera_info" />
 	<arg name="output_frame" default="/right_hand_camera" />
-	<param name="frame_id" type="string" value="r_hand_cam" />
+	<param name="frame_id" type="string" value="right_hand_cam" />
 
 	<node name="ar_track_alvar" pkg="ar_track_alvar" type="individualMarkersNoKinect" respawn="false" output="screen" args="$(arg marker_size) $(arg max_new_marker_error) $(arg max_track_error) $(arg cam_image_topic) $(arg cam_info_topic) $(arg output_frame)" />
 </launch>
