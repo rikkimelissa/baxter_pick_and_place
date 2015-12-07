@@ -15,7 +15,7 @@ from functions import JointTrajectory, ScrewTrajectory, CartesianTrajectory
 class Trajectory(object):
     def __init__(self, limb):
         self._done = False
-        self._state = 2
+        self._state = 0
         
     def set_pos_callback(self, data):
         self._euclidean_goal = data

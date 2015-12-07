@@ -13,14 +13,19 @@ rospy.Subscriber("/ar_pose_marker", AlvarMarker,data_callback)
 def data_callback(data):  
     
 listener = tf.TransformListener()
-posWC, quatWC = listener.lookupTransform('/base','/head_camera',rospy.Time(0))
-quatWC = [quatWC[1:4], quatWC[0]]
-quatCB = [quatCB[1:4], quatCB[0]]
+posWC, quatWC = listener.lookupTransform('/base','/right_hand_camera',rospy.Time(0))
+posWC = np.array([.706, .124, .306])
+quatWC = [-.007, .763, -.645, -.032]
+posCB = np.array([.031, -.106, .450]) 
+quatCB = [-.03, .0234, .999, -.014]
+quatWC = np.array([quatWC[0], quatWC[1], quatWC[2], quatWC[3]])
+quatCB = np.array([quatCB[0], quatCB[1], quatCB[2], quatCB[3]])
 rotWC = quat_to_so3(quatWC)
 rotCB = quat_to_so3(quatCB)
 gWC = RpToTrans(rotWC,posWC)
 gCB = RpToTrans(rotCB,posCB)
 gWB = gWC.dot(gCB)
+
 rotWB, posWB = TransToRp(gWB)
 quatWB = so3_to_quat(rotWB)
 
