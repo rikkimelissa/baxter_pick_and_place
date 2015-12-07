@@ -100,7 +100,7 @@ class Trajectory(object):
         #set initial position
         print("start")
         xmod = xstart
-        zmin = 0.05
+        zmin = 0.13
         
         while self._laserscan.range > zmin:
             print("while")
