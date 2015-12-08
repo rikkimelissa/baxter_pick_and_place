@@ -1,5 +1,0 @@
-<launch>
-
-    <node name = "close_cam" pkg = "baxter_tools" type = "camera_control.py" args="--close head_camera">
-    </node>
-</launch>
