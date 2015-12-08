@@ -16,6 +16,7 @@ class Trajectory(object):
     def __init__(self, limb):
         self._done = False
         self._state = 0
+        self._right_gripper = baxter_interface.Gripper('right')
         
 #    def set_pos_callback(self, data):
 #        self._euclidean_goal = data
@@ -29,12 +30,11 @@ class Trajectory(object):
             self.execute_move(data)
     
     def execute_move(self, pos):
-        right_gripper = baxter_interface.Gripper('right')
-        right_gripper.close()
-        right_gripper.close()
-        right_gripper.close()
-        right_gripper.close()
-        right_gripper.close()
+        self._right_gripper.close()
+        self._right_gripper.close()
+        self._right_gripper.close()
+        self._right_gripper.close()
+        self._right_gripper.close()
         rospy.loginfo('moving')
   
         # Send joint move command
@@ -67,11 +67,11 @@ class Trajectory(object):
 #            limb_interface.set_joint_positions(angles)
 #            rospy.sleep(.1)
         
-        right_gripper.open()
-        right_gripper.open()
-        right_gripper.open()
-        right_gripper.open()
-        right_gripper.open()
+        self._right_gripper.open()
+        self._right_gripper.open()
+        self._right_gripper.open()
+        self._right_gripper.open()
+        self._right_gripper.open()
         
         q0 = q_goal
         q_goal = [1.09, -.79, -.36, .779,  .332, 1.69, -3.05]    

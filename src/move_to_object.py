@@ -50,38 +50,38 @@ class Trajectory(object):
         pose[0:3,0:3] = R
         pose[0:3,3] = p
         Xend = copy(np.asarray(pose))
-        
-        # Compute straight-line trajectory for path
-        N = 50
-        Xlist = CartesianTrajectory(Xstart, Xend, 1, N, 5)
-        thList = np.empty((N,7))
-        thList[0] = q0;
-        
-        for i in range(N-1):
-        # Solve for joint angles
-            seed = 0
-            q_ik = kdl_kin.inverse(Xlist[i+1], thList[i])
-            while q_ik == None:
-                seed += 0.3
-                q_ik = kdl_kin.inverse(pose, q0+seed)
-            thList[i+1] = q_ik
+#        
+#        # Compute straight-line trajectory for path
+#        N = 50
+#        Xlist = CartesianTrajectory(Xstart, Xend, 1, N, 5)
+#        thList = np.empty((N,7))
+#        thList[0] = q0;
+#        
+#        for i in range(N-1):
+#        # Solve for joint angles
+#            seed = 0
+#            q_ik = kdl_kin.inverse(Xlist[i+1], thList[i])
+#            while q_ik == None:
+#                seed += 0.3
+#                q_ik = kdl_kin.inverse(pose, q0+seed)
+#            thList[i+1] = q_ik
 #            rospy.loginfo(q_ik)
         
-#        # Solve for joint angles
-#        seed = 0.3
-#        q_ik = kdl_kin.inverse(pose, q0+seed)
-#        while q_ik == None:
-#            seed += 0.3
-#            q_ik = kdl_kin.inverse(pose, q0+seed)
-#        rospy.loginfo(q_ik)
-#        
-#        q_list = JointTrajectory(q0,q_ik,1,100,5)
+        # Solve for joint angles
+        seed = 0.3
+        q_ik = kdl_kin.inverse(pose, q0+seed)
+        while q_ik == None:
+            seed += 0.3
+            q_ik = kdl_kin.inverse(pose, q0+seed)
+        rospy.loginfo(q_ik)
         
-#        for q in q_list:
+        q_list = JointTrajectory(q0,q_ik,1,50,5)
+        
+        for q in q_list:
             # Format joint angles as limb joint angle assignment      
             angles = limb_interface.joint_angles()
             for ind, joint in enumerate(limb_interface.joint_names()):
-                angles[joint] = q_ik[ind]
+                angles[joint] = q[ind]
 #            rospy.loginfo(angles)
             rospy.sleep(.1)
             
