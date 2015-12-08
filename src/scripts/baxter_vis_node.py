@@ -12,7 +12,7 @@ from geometry_msgs.msg import PoseStamped, Pose, Point, Quaternion, QuaternionSt
 from std_msgs.msg import Header, Int16
 from quat import quat_to_so3, so3_to_quat
 from functions import RpToTrans, TransToRp
-state = 1
+state = 0
     
 def xdisplay_pub(data):
     #print "entered"
@@ -41,7 +41,6 @@ def main_func():
     #tag_pose = Pose()
     tag_found = False
     global state
-    state = 1
 
 
     ###Define Subsribers and Publishers
@@ -51,6 +50,7 @@ def main_func():
     rospy.Subscriber("/cameras/right_hand_camera/image", Image,xdisplay_pub)
     state_pub = rospy.Publisher('state', Int16, queue_size=10, latch=True)
     tag_pub = rospy.Publisher('block_position', Pose, queue_size = 10, latch=True)
+    goal_pub = rospy.Publisher('goal', Int16, queue_size = 10, latch=True)
 
     #Sleep Before entering loop
     rospy.sleep(.5)
@@ -72,7 +72,7 @@ def main_func():
 
         ###Main State Machine Loop - Only run while state_callback is 1            
         while state == 1:# and tag_found == False:  
-
+            rospy.loginfo("Entered State 1")
             rtime = rospy.Time.now()
             trans = []
             rot = []
@@ -171,9 +171,12 @@ def main_func():
             ##PUBLISH TAG if it Exists
             if tag_found == True:
                 #Set locally and publish new state
-                state = 2
-                state_pub.publish(2)
+                if tag_selected < 3:
+                    goal_pub.publish(1)
+                else:
+                    goal_pub.publish(2)                 
                 rospy.loginfo(2)
+                state_pub.publish(2)                  
                 #publish tage Pose
                 tag_pub.publish(bpos)
                 print "tag selected", tag_selected  
