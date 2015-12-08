@@ -115,7 +115,7 @@ class Trajectory(object):
             if self._laserscan.range >= self._laserscan.max_range:
                 xmod.position.z = xmod.position.z - 0.1
             else:
-                if (self._laserscan.range - zmin) > 0.1:
+                if (self._laserscan.range - zmin) > 0.05:
                     xmod.position.z = xmod.position.z - self._laserscan.range + zmin
                 else:
                     break

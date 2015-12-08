@@ -59,26 +59,34 @@ def main_func():
         #if count%10==0:
 
         #tag_found, tag_transform, WCtransform = multi_marker(listener,tag_found)
+        
         if state ==1:
             print "state is:", state
             print "Is tag_found?:", tag_found
             
         while state == 1 and tag_found == False:  
             #posCB, quatCB, posWC, quatWC = multi_marker(listener)
+            trans = []
+            rot = []
+            dist = []
+            id_list = []
+            print state
             for n in range(1,7):
                 marker_id = 'ar_marker_%d'%n
-                marker_found = listener.frameExists(marker_id)
-                if marker_found == True:
+                tag_found = listener.frameExists(marker_id)
+                print "does marker", n, "esist:", tag_found
+                print "Marker found is:", 'ar_marker_%d'%n
+                if tag_found == True: 
                     #print "looking at tag:",n
                     #(transWC,rotWC) = listener.lookupTransform('base', 'right_hand_camera', rtime)
                     posCB,quatCB = listener.lookupTransform('right_hand_camera', marker_id, rtime)
                     print "posCB:", posCB
-                    print "quatCB", quatCB
+                    #print "quatCB", quatCB
                     trans.append(posCB)
                     rot.append(quatCB)
                     dist.append(np.linalg.norm(posCB))
                     id_list.append(n)
-                    print marker_id, ":", posCB
+                    #print marker_id, ":", posCB
             if len(dist)>0:     
                 tag_index = np.argmin(dist)
                 print "tag index is", tag_index
@@ -90,11 +98,11 @@ def main_func():
                 posCB, quatCB = tag_transform
                 posWC,quatWC = listener.lookupTransform('base', 'right_hand_camera', rospy.Time(0))
 
-                print "posCB after if:", posCB
-                print "quatCB acter if:", quatCB
+                print "posCB from tf:", posCB
+                #print "quatCB acter if:", quatCB
 
-                print "posWC", posWC
-                print "quatWC", quatWC
+                #print "posWC", posWC
+                #print "quatWC", quatWC
 
 
 
@@ -108,39 +116,38 @@ def main_func():
          
                 print "Distance is:", dist[np.argmin(dist)]  
 
-        count += 1
+                #count += 1
 
 
 
         if tag_found == True:
-        #pub_tag_pose(tag_transform, WCtransform)
-        #print tag_transform
+            #pub_tag_pose(tag_transform, WCtransform)
+            #print tag_transform
        
             rotWC = quat_to_so3(quatWC)
             rotCB = quat_to_so3(quatCB)
             gWC = RpToTrans(rotWC,posWC)
-            print "gWC is: ", gWC
+            #print "gWC is: ", gWC
             gCB = RpToTrans(rotCB,posCB)
             gWB = gWC.dot(gCB)
             beta = pi
             gpick = gWB.dot(np.array([[cos(beta),0, -sin(beta),0],[0,1,0,0],[sin(beta),0, cos(beta),0],[0,0,0,1]]))
-            print "gWB is: ", gWB
-            print "gCB is: ", gCB
+            #print "gWB is: ", gWB
+            #print "gCB is: ", gCB
             rotWB, posWB = TransToRp(gpick)
             quatWB = so3_to_quat(rotWB)
 
-            print "quatWB", quatWB
+            #print "quatWB", quatWB
             print "PosWB:", posWB
 
             bpos = Pose()
             bpos.position.x = posWB[0]
             bpos.position.y = posWB[1]
-            bpos.position.z = posWB[2]
+            bpos.position.z = -.02 #posWB[2]
             bpos.orientation.x = .99 
             bpos.orientation.y = -.024
             bpos.orientation.z = .024 
             bpos.orientation.w = .0133 
-            tag_found = False
 
             #state_pub = rospy.Publisher('state', Int16, queue_size=10, latch=True)
             #tag_pub = rospy.Publisher('block_position', Pose, queue_size = 10, latch=True)
@@ -150,11 +157,11 @@ def main_func():
 
             print "tag selected", tag_selected  
             state = 2
-            tag_found = False
             #rospy.sleep(1)
                 #break
             print state
-            rate.sleep()
+            tag_found = False
+        rate.sleep()
 
 
 if __name__ == '__main__':

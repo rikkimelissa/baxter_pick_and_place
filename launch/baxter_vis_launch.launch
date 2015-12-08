@@ -1,8 +1,12 @@
 <launch>
 
     <node name = "open_cam" pkg = "baxter_tools" type = "camera_control.py" args="--open right_hand_camera --resolution 1280x800"/>
+    <node name = "move_to_object" pkg = "baxter_pick_and_place" type="move_to_object.py" />
+    <node name = "move_to_laser" pkg = "baxter_pick_and_place" type="move_to_laser.py" />
+    <node name = "move_to_goal" pkg = "baxter_pick_and_place" type="move_to_goal.py" />
     
     <include file = "$(find baxter_pick_and_place)/launch/indiv_tag_baxter.launch" />
+    <node name = "tag_select" pkg = "baxter_pick_and_place" type="baxter_vis_node.py" />
     
 
 </launch>
