@@ -31,6 +31,7 @@ class Trajectory(object):
         rospy.loginfo('moving')
         # Read in pose data
         pos.position.z += .1
+        pos.position.x += .005
         q = [pos.orientation.w, pos.orientation.x, pos.orientation.y, pos.orientation.z]
         p =[[pos.position.x],[pos.position.y],[pos.position.z]]
         # Convert quaternion data to rotation matrix

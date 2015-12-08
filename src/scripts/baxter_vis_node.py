@@ -81,7 +81,7 @@ def main_func():
             
             tag_found = False
             
-            rate.sleep()
+            rospy.sleep(.15)
             print state
 
             ##For loop to search through tf frames of markers
@@ -89,15 +89,17 @@ def main_func():
                 marker_id = 'ar_marker_%d'%n
                 #tag_found = listener.frameExists(marker_id)
                 #print "Marker found is:", 'ar_marker_%d'%n
-                try:
-                    rtime1 = listener.getLatestCommonTime('right_hand_camera', marker_id)
-                    tag_found = True
-                except (tf.Exception):
-                    continue
+                
+                #Check to see if the frames exists for the marker
+                if listener.frameExists("/right_hand_camera") and listener.frameExists(marker_id):
+                #set the time for the latest lookup
+                    rtime1 = listener.getLatestCommonTime("/right_hand_camera", marker_id)
                     
-##                if rtime1 > rtime:
-##                    tag_found = listener.canTransform('right_hand_camera', marker_id, rtime1)
-                    
+                #check to see if this time is greater that time at beginning of loop
+                    if rtime1 > rtime:
+                        #set the tag_found to true
+                        tag_found = True  
+                        rtime1 = rtime
                 print "Marker list: AR_Marker", n, "exist:", tag_found
                 ##when a frame is found for a particular Marker "n" add to list
                 ##only 1 addition per "n" in for
@@ -127,7 +129,7 @@ def main_func():
 
                 #get tag and world frames  into correct variables                
                 posCB, quatCB = tag_transform
-                posWC,quatWC = listener.lookupTransform('base', 'right_hand_camera', rtime)
+                posWC,quatWC = listener.lookupTransform('base', 'right_hand_camera', rospy.Time(0))
                 print "posCB from tf:", posCB
 
                 #create proper format for pos and quat variables for functions
