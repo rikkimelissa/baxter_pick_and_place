@@ -23,13 +23,17 @@ class Trajectory(object):
 #            self.execute_move(data)
     
     def set_state_callback(self, data):
-        rospy.loginfo(data.data)
+#        rospy.loginfo(data.data)
         self._state = data.data
         if self._state == 5:
             self.execute_move(data)
     
     def execute_move(self, pos):
         right_gripper = baxter_interface.Gripper('right')
+        right_gripper.close()
+        right_gripper.close()
+        right_gripper.close()
+        right_gripper.close()
         right_gripper.close()
         rospy.loginfo('moving')
   
@@ -39,23 +43,50 @@ class Trajectory(object):
         kdl_kin = KDLKinematics(robot, base_link, 'right_gripper_base')
         limb_interface = baxter_interface.limb.Limb('right')
         angles = limb_interface.joint_angles()
+        
+        
         q_goal = [-.315, -1.019, .3064, 1.5286, -.4912, .5844, -2.7899]
         q0 = kdl_kin.random_joint_angles()
         current_angles = [limb_interface.joint_angle(joint) for joint in limb_interface.joint_names()]
         for ind in range(len(q0)):
             q0[ind] = current_angles[ind]
         
-        q_list = JointTrajectory(q0,np.asarray(q_goal),1,10,5)
+        q_list = JointTrajectory(q0,np.asarray(q_goal),1,50,5)
         for q in q_list:
             for ind, joint in enumerate(limb_interface.joint_names()):
                 angles[joint] = q[ind]
             limb_interface.set_joint_positions(angles)
-            rospy.sleep(.3)
-            pub_state = rospy.Publisher('state', Int16, queue_size = 10)
-            
+            rospy.sleep(.1)
+#        
+#        q_0 = q_goal    
+#        q_goal = [-.315, -1.019, .3064, 1.5286, -.4912, .5844, -2.7899]
+#        q_list = JointTrajectory(np.asarray(q0),np.asarray(q_goal),1,50,5)
+#        for q in q_list:
+#            for ind, joint in enumerate(limb_interface.joint_names()):
+#                angles[joint] = q[ind]
+#            limb_interface.set_joint_positions(angles)
+#            rospy.sleep(.1)
+        
         right_gripper.open()
-        rospy.loginfo(2)
-        pub_state.publish(2)
+        right_gripper.open()
+        right_gripper.open()
+        right_gripper.open()
+        right_gripper.open()
+        
+        q0 = q_goal
+        q_goal = [1.09, -.79, -.36, .779,  .332, 1.69, -3.05]    
+        q_list = JointTrajectory(np.asarray(q0),np.asarray(q_goal),1,50,5)
+        for q in q_list:
+            for ind, joint in enumerate(limb_interface.joint_names()):
+                angles[joint] = q[ind]
+            limb_interface.set_joint_positions(angles)
+            rospy.sleep(.1)
+            
+        pub_state = rospy.Publisher('state', Int16, queue_size = 10, latch=True)
+            
+        rospy.sleep(.2)
+        rospy.loginfo(1)
+        pub_state.publish(1)
         self._done = True
         print('Done')
         

@@ -100,7 +100,7 @@ class Trajectory(object):
         #set initial position
         print("start")
         xmod = xstart
-        zmin = 0.05
+        zmin = 0.12
         
         while self._laserscan.range > zmin:
             print("while")
@@ -113,16 +113,20 @@ class Trajectory(object):
             xmod.orientation.w = xstart.orientation.w
 
             if self._laserscan.range >= self._laserscan.max_range:
-                xmod.position.z = xmod.position.z - 0.2
+                xmod.position.z = xmod.position.z - 0.1
             else:
-                xmod.position.z = xmod.position.z - self._laserscan.range + zmin
-    
+                if (self._laserscan.range - zmin) > 0.1:
+                    xmod.position.z = xmod.position.z - self._laserscan.range + zmin
+                else:
+                    break
+                    
             self.execute_move(xmod)
-
-        pub_state = rospy.Publisher('state', Int16, queue_size = 10)
-
+            
+        pub_state = rospy.Publisher('state', Int16, queue_size = 10, latch=True)
         rospy.loginfo(5) 
-        pub_state.publish(5)                    
+        rospy.sleep(.2)
+        pub_state.publish(5)          
+                          
         self._done = True
         print('Done')
         

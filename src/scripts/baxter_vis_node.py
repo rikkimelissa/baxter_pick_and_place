@@ -12,16 +12,17 @@ from geometry_msgs.msg import PoseStamped, Pose, Point, Quaternion, QuaternionSt
 from std_msgs.msg import Header, Int16
 from quat import quat_to_so3, so3_to_quat
 from functions import RpToTrans, TransToRp
-
+state = 1
     
 def xdisplay_pub(data,count):
     #print "entered"
-    img_pub = rospy.Publisher('/robot/xdisplay', Image, latch=True, queue_size=100)
+    img_pub = rospy.Publisher('/robot/xdisplay', Image, latch=True, queue_size=1)
     img_pub.publish(data)
     rospy.sleep(0.25)
 
 
 def set_state_callback(data):
+    global state
     state = data.data
 
 
@@ -38,9 +39,13 @@ def main_func():
     id_list = []
     tag_pose = Pose()
     tag_found = False
+    global state
     state = 1
     rtime = rospy.Time(0)
     rospy.Subscriber('state',Int16,set_state_callback)
+    rospy.Subscriber("/cameras/right_hand_camera/image", Image,xdisplay_pub,count)
+    state_pub = rospy.Publisher('state', Int16, queue_size=10, latch=True)
+    tag_pub = rospy.Publisher('block_position', Pose, queue_size = 10, latch=True)
     # while listener.frameExists('base') == False:
 
     #     try:
@@ -52,10 +57,13 @@ def main_func():
 
     while not rospy.is_shutdown():
         #if count%10==0:
-        rospy.Subscriber("/cameras/right_hand_camera/image", Image,xdisplay_pub,count)
 
         #tag_found, tag_transform, WCtransform = multi_marker(listener,tag_found)
-        while tag_found == False:  
+        if state ==1:
+            print "state is:", state
+            print "Is tag_found?:", tag_found
+            
+        while state == 1 and tag_found == False:  
             #posCB, quatCB, posWC, quatWC = multi_marker(listener)
             for n in range(1,7):
                 marker_id = 'ar_marker_%d'%n
@@ -104,51 +112,49 @@ def main_func():
 
 
 
-        #if tag_found == True:
+        if tag_found == True:
         #pub_tag_pose(tag_transform, WCtransform)
         #print tag_transform
        
-        rotWC = quat_to_so3(quatWC)
-        rotCB = quat_to_so3(quatCB)
-        gWC = RpToTrans(rotWC,posWC)
-        print "gWC is: ", gWC
-        gCB = RpToTrans(rotCB,posCB)
-        gWB = gWC.dot(gCB)
-        beta = pi
-        gpick = gWB.dot(np.array([[cos(beta),0, -sin(beta),0],[0,1,0,0],[sin(beta),0, cos(beta),0],[0,0,0,1]]))
-        print "gWB is: ", gWB
-        print "gCB is: ", gCB
-        rotWB, posWB = TransToRp(gpick)
-        quatWB = so3_to_quat(rotWB)
+            rotWC = quat_to_so3(quatWC)
+            rotCB = quat_to_so3(quatCB)
+            gWC = RpToTrans(rotWC,posWC)
+            print "gWC is: ", gWC
+            gCB = RpToTrans(rotCB,posCB)
+            gWB = gWC.dot(gCB)
+            beta = pi
+            gpick = gWB.dot(np.array([[cos(beta),0, -sin(beta),0],[0,1,0,0],[sin(beta),0, cos(beta),0],[0,0,0,1]]))
+            print "gWB is: ", gWB
+            print "gCB is: ", gCB
+            rotWB, posWB = TransToRp(gpick)
+            quatWB = so3_to_quat(rotWB)
 
-        print "quatWB", quatWB
-        print "PosWB:", posWB
+            print "quatWB", quatWB
+            print "PosWB:", posWB
 
-        bpos = Pose()
-        bpos.position.x = posWB[0]
-        bpos.position.y = posWB[1]
-        bpos.position.z = posWB[2]
-        bpos.orientation.x = quatWB[1]
-        bpos.orientation.y = quatWB[2]
-        bpos.orientation.z = quatWB[3]
-        bpos.orientation.w = quatWB[0]
-        tag_found = False
+            bpos = Pose()
+            bpos.position.x = posWB[0]
+            bpos.position.y = posWB[1]
+            bpos.position.z = posWB[2]
+            bpos.orientation.x = .99 
+            bpos.orientation.y = -.024
+            bpos.orientation.z = .024 
+            bpos.orientation.w = .0133 
+            tag_found = False
 
-        state_pub = rospy.Publisher('state', Int16, queue_size=10)
-        tag_pub = rospy.Publisher('block_position', Pose, queue_size = 10)
-
-        for i in range(10):
-            # state_pub = rospy.Publisher('state', Int16, queue_size=10)
+            #state_pub = rospy.Publisher('state', Int16, queue_size=10, latch=True)
+            #tag_pub = rospy.Publisher('block_position', Pose, queue_size = 10, latch=True)
             state_pub.publish(2)
-
-            # tag_pub = rospy.Publisher('block_position', Pose, queue_size = 10)
+            rospy.loginfo(2)
             tag_pub.publish(bpos)
 
             print "tag selected", tag_selected  
-        #rospy.sleep(1)
-            #break
-        print state
-        rate.sleep()
+            state = 2
+            tag_found = False
+            #rospy.sleep(1)
+                #break
+            print state
+            rate.sleep()
 
 
 if __name__ == '__main__':

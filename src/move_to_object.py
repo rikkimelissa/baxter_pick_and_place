@@ -24,13 +24,13 @@ class Trajectory(object):
             self.execute_move(data)
     
     def set_state_callback(self, data):
-        rospy.loginfo(data.data)
+#        rospy.loginfo(data.data)
         self._state = data.data
     
     def execute_move(self, pos):
         rospy.loginfo('moving')
         # Read in pose data
-        pos.orientation.z += .15
+        pos.position.z += .2
         q = [pos.orientation.w, pos.orientation.x, pos.orientation.y, pos.orientation.z]
         p =[[pos.position.x],[pos.position.y],[pos.position.z]]
         # Convert quaternion data to rotation matrix
@@ -52,7 +52,7 @@ class Trajectory(object):
         Xend = copy(np.asarray(pose))
         
         # Compute straight-line trajectory for path
-        N = 10
+        N = 50
         Xlist = CartesianTrajectory(Xstart, Xend, 1, N, 5)
         thList = np.empty((N,7))
         thList[0] = q0;
@@ -83,19 +83,21 @@ class Trajectory(object):
             for ind, joint in enumerate(limb_interface.joint_names()):
                 angles[joint] = q_ik[ind]
 #            rospy.loginfo(angles)
-            rospy.sleep(.3)
+            rospy.sleep(.1)
             
             # Send joint move command
             limb_interface.set_joint_position_speed(.3)
             limb_interface.set_joint_positions(angles)
-        
-            pub_hand = rospy.Publisher('hand_position', Pose, queue_size = 10)
-            pub_state = rospy.Publisher('state', Int16, queue_size = 10)
             
+        pub_hand = rospy.Publisher('hand_position', Pose, queue_size = 10, latch=True)
+        pub_state = rospy.Publisher('state', Int16, queue_size = 10, latch=True)
+        
+        rospy.sleep(.2)
         rospy.loginfo(4) 
         pub_state.publish(4)                    
         rospy.loginfo(pos)
         pub_hand.publish(pos)  
+
         self._done = True
         print('Done')
         
