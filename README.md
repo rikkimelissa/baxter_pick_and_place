@@ -10,6 +10,10 @@ Rikki Irwin, Matt Cruz, Nathan Corwin, Ayush Sharma
 
 [Requirements](#Requirements)
 
+[Important nodes](#nodes)
+
+[Important topics](#topics)
+
 [Detecting the block with AR tracking](#Vision)
 
 [Moving above the block](#Movement)
@@ -21,7 +25,7 @@ Rikki Irwin, Matt Cruz, Nathan Corwin, Ayush Sharma
 [Instructions for running the files](#Instructions)
 
 
-#### Project Overview  <a name="Project Overview"></a>
+#### Project overview  <a name="Project Overview"></a>
 The main goal of this project was to use the Baxter robot to autonomously pick objects off of a work surface and place them in a container. This was the final project for ME495: Embedded Systems in Robotics at Northwestern University. The task is split into four main states which are implemented through a state machine:
 * Locate a block with tags using ar_track_alvar
 * Move to above the block position using a joint trajectory
@@ -36,6 +40,17 @@ The main goal of this project was to use the Baxter robot to autonomously pick o
   * urdf package with apt-get install ros-version-urdfdom-py
   * kdl package with apt-get install ros-version-kdl-conversions
 
+#### Important nodes <a name="nodes"></a>
+ * `baxter_vis_node.py` runs block detection
+ * `move_to_object.py` moves to above the block
+ * `move_to_laser.py` uses the laser range data to adjust the height
+ * `move_to_goal.py` controls the grippers and drops off the block
+
+#### Important topics <a name="topics"></a>
+ * `block_position` is published by the visualization node and contains the Pose of the block
+ * `hand_position` is published by the first moving node and contains the Pose of the gripper
+ * `state` contains the current state of the state machine
+ * `goal` contains which group the current block belongs to for sorting
 
 #### Detecting the block with AR tracking  <a name="Vision"></a>
 In this state, ar_track_alvar is used to find the block positions and orientations. Each block has a unique tag; if multiple blocks are found, the block that is closest to the current position will be used. 
