@@ -56,7 +56,7 @@ The main goal of this project was to use the Baxter robot to autonomously pick o
 In this state, ar_track_alvar is used to find the block positions and orientations. Each block has a unique tag; if multiple blocks are found, the block that is closest to the current position will be used. 
 
 #### Moving above the block  <a name="Movement"></a>
-In this state, a joint trajectory is calculated to move between from the current position to 10 mm above the block. The joint angles for the gripper position at the block is calculated through inverse kinematics and transformed to the robot's base frame. The joints are then linearly interpolated and the joint positions are sent sequentially to move the gripper to the desired position.
+In this state, a joint trajectory is calculated to move between from the current position to 10 mm above the block. The joint angles for the gripper position at the block is calculated through inverse kinematics and transformed to the robot's base frame. The joint trajectory is then calulcated with quintic time scaling and the joint positions are sent sequentially to move the gripper to the desired position.
 
 #### Adjusting the height  <a name="fine"></a>
 In this state, a Cartesian trajectory is used to hold the orientation of the gripper constant and just change the height as the gripper moves closer to the block. The laser range data from Baxter's hand is used in a feedback loop to determine when the gripper has reached the block.

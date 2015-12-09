@@ -13,23 +13,28 @@ from std_msgs.msg import Int16
 from functions import JointTrajectory, ScrewTrajectory, CartesianTrajectory
 
 class Trajectory(object):
+    # Initalize class instance
     def __init__(self, limb):
         self._done = False
         self._state = 0
-        
+        self._pub_hand = rospy.Publisher('hand_position', Pose, queue_size = 10, latch=True)
+        self._pub_state = rospy.Publisher('state', Int16, queue_size = 10, latch=True)
+    
+    # Reads in desired pose data    
     def set_pos_callback(self, data):
         self._euclidean_goal = data
         rospy.loginfo(data)
         if self._state == 2:
             self.execute_move(data)
     
+    # Changes the state in the state machine
     def set_state_callback(self, data):
-#        rospy.loginfo(data.data)
         self._state = data.data
     
+    # Moves to the desired pose
     def execute_move(self, pos):
         rospy.loginfo('moving')
-        # Read in pose data
+        # Read in pose data. Adjust the height to be above the block and the length so that the laser sees the table instead of the block
         pos.position.z += .1
         pos.position.x += .005
         q = [pos.orientation.w, pos.orientation.x, pos.orientation.y, pos.orientation.z]
@@ -43,32 +48,15 @@ class Trajectory(object):
         # Create seed with current position
         q0 = kdl_kin.random_joint_angles()
         limb_interface = baxter_interface.limb.Limb('right')
+        limb_interface.set_joint_position_speed(.3)
         current_angles = [limb_interface.joint_angle(joint) for joint in limb_interface.joint_names()]
         for ind in range(len(q0)):
             q0[ind] = current_angles[ind]
         pose = kdl_kin.forward(q0)
-        Xstart = copy(np.asarray(pose))
         pose[0:3,0:3] = R
         pose[0:3,3] = p
-        Xend = copy(np.asarray(pose))
-#        
-#        # Compute straight-line trajectory for path
-#        N = 50
-#        Xlist = CartesianTrajectory(Xstart, Xend, 1, N, 5)
-#        thList = np.empty((N,7))
-#        thList[0] = q0;
-#        
-#        for i in range(N-1):
-#        # Solve for joint angles
-#            seed = 0
-#            q_ik = kdl_kin.inverse(Xlist[i+1], thList[i])
-#            while q_ik == None:
-#                seed += 0.3
-#                q_ik = kdl_kin.inverse(pose, q0+seed)
-#            thList[i+1] = q_ik
-#            rospy.loginfo(q_ik)
         
-        # Solve for joint angles
+        # Solve for joint angles, iterating if no solution is found
         seed = 0.3
         q_ik = kdl_kin.inverse(pose, q0+seed)
         while q_ik == None:
@@ -76,34 +64,32 @@ class Trajectory(object):
             q_ik = kdl_kin.inverse(pose, q0+seed)
         rospy.loginfo(q_ik)
         
+        # Calculate the joint trajectory with a quintic time scaling
         q_list = JointTrajectory(q0,q_ik,1,50,5)
         
+        # Iterate through list
         for q in q_list:
             # Format joint angles as limb joint angle assignment      
             angles = limb_interface.joint_angles()
             for ind, joint in enumerate(limb_interface.joint_names()):
                 angles[joint] = q[ind]
-#            rospy.loginfo(angles)
             rospy.sleep(.1)
             
             # Send joint move command
-            limb_interface.set_joint_position_speed(.3)
             limb_interface.set_joint_positions(angles)
-            
-        pub_hand = rospy.Publisher('hand_position', Pose, queue_size = 10, latch=True)
-        pub_state = rospy.Publisher('state', Int16, queue_size = 10, latch=True)
         
-        rospy.sleep(.2)
+        # Publish state and hand position
         rospy.loginfo(4) 
-        pub_state.publish(4)                    
+        self._pub_state.publish(4)                    
         rospy.loginfo(pos)
-        pub_hand.publish(pos)  
+        self._pub_hand.publish(pos)  
 
         self._done = True
         print('Done')
         
         
 def main():
+    # Initialize node, subscribers, and class instance
     rospy.init_node('move_to_object')
     traj = Trajectory('right')
     rospy.Subscriber("block_position", Pose, traj.set_pos_callback)
