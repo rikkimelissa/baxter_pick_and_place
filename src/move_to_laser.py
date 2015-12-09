@@ -9,6 +9,7 @@ from urdf_parser_py.urdf import URDF
 from pykdl_utils.kdl_kinematics import KDLKinematics
 from quat import quat_to_so3
 import numpy as np
+from math import fabs
 from std_msgs.msg import Int16
 from sensor_msgs.msg import Range
 from functions import JointTrajectory, ScrewTrajectory, CartesianTrajectory
@@ -85,12 +86,20 @@ class Trajectory(object):
 #        for q in q_list:
             # Format joint angles as limb joint angle assignment      
             angles = limb_interface.joint_angles()
+            angle_count = 0
             for ind, joint in enumerate(limb_interface.joint_names()):
+#                if fabs(angles[joint] - q_ik[ind]) < .05:
+#                    angle_count += 1
                 angles[joint] = q_ik[ind]
 #            rospy.loginfo(angles)
             rospy.sleep(.003)
             
             # Send joint move command
+            rospy.loginfo('move to object')
+#            rospy.loginfo(angle_count)
+#            if angle_count > 4:
+#                nothing = True;
+#            else:
             limb_interface.set_joint_position_speed(.3)
             limb_interface.set_joint_positions(angles)
         self._done = True
@@ -100,7 +109,7 @@ class Trajectory(object):
         #set initial position
         print("start")
         xmod = xstart
-        zmin = 0.05
+        zmin = 0.12
         
         while self._laserscan.range > zmin:
             print("while")
@@ -113,16 +122,24 @@ class Trajectory(object):
             xmod.orientation.w = xstart.orientation.w
 
             if self._laserscan.range >= self._laserscan.max_range:
-                xmod.position.z = xmod.position.z - 0.2
+                rospy.loginfo('moving down')
+                xmod.position.z = xmod.position.z - 0.1
             else:
-                xmod.position.z = xmod.position.z - self._laserscan.range + zmin
-    
+                #if (self._laserscan.range - zmin) > 0.05:
+                rospy.loginfo('modding position')
+                xmod.position.z = xmod.position.z - self._laserscan.range + zmin - .01
+                #else:
+                #    break
+            
+            rospy.loginfo(xmod.position.z)
+#            rospy.loginfo(limb_interface.endpoint_pose())
             self.execute_move(xmod)
-
-        pub_state = rospy.Publisher('state', Int16, queue_size = 10)
-
+            
+        pub_state = rospy.Publisher('state', Int16, queue_size = 10, latch=True)
         rospy.loginfo(5) 
-        pub_state.publish(5)                    
+        rospy.sleep(.2)
+        pub_state.publish(5)          
+                          
         self._done = True
         print('Done')
         
