@@ -49,17 +49,10 @@ class Trajectory(object):
         kdl_kin = KDLKinematics(robot, base_link, 'right_gripper_base')
         limb_interface = baxter_interface.limb.Limb('right')
         angles = limb_interface.joint_angles()
-        limb_interface.set_joint_speed(.3)
+        limb_interface.set_joint_position_speed(.7)
         
         
-        # Set the dropoff position to be dropoff #1
-        if self._goal == 1:
-            q_goal = [-.675, -.445, 1.626, 1.1336, -1.457, 1.6145, -2.190]
-        # Dropoff #2
-        else:
-            q_goal = [-.066, -.068, 1.738, .8022, -2.23, .917, -2.9057]
-
-        # Create the desired joint trajectory with a quintic time scaling
+        q_goal = [-.01859, -.5119, 1.7909, 1.232, -1.030, 1.945, -1.31]  
         q0 = kdl_kin.random_joint_angles()
         current_angles = [limb_interface.joint_angle(joint) for joint in limb_interface.joint_names()]
         for ind in range(len(q0)):
@@ -69,19 +62,26 @@ class Trajectory(object):
             for ind, joint in enumerate(limb_interface.joint_names()):
                 angles[joint] = q[ind]
             limb_interface.set_joint_positions(angles)
-            rospy.sleep(.1)
-##        
-#        q_0 = q_goal
-#        # dropoff position
-#        q_goal = [-.675, -.445, 1.626, 1.1336, -1.457, 1.6145, -2.190]
-#        q_list = JointTrajectory(np.asarray(q0),np.asarray(q_goal),1,50,5)
-#        for q in q_list:
-#            for ind, joint in enumerate(limb_interface.joint_names()):
-#                angles[joint] = q[ind]
-#            limb_interface.set_joint_positions(angles)
-#            rospy.sleep(.1)
+            rospy.sleep(.03)
+        
+
+        # Create the desired joint trajectory with a quintic time scaling
+        q0 = q_goal
+        # Set the dropoff position to be dropoff #1
+        if self._goal == 1:
+            q_goal = [-.675, -.445, 1.626, 1.1336, -1.457, 1.6145, -2.190]
+        # Dropoff #2
+        else:
+            q_goal = [-.066, -.068, 1.738, .8022, -2.23, .917, -2.9057]
+        q_list = JointTrajectory(np.asarray(q0),np.asarray(q_goal),1,50,5)
+        for q in q_list:
+            for ind, joint in enumerate(limb_interface.joint_names()):
+                angles[joint] = q[ind]
+            limb_interface.set_joint_positions(angles)
+            rospy.sleep(.03)
         
         # Open the gripper
+        rospy.sleep(.2)
         self._right_gripper.open()
         self._right_gripper.open()
         self._right_gripper.open()
@@ -96,8 +96,9 @@ class Trajectory(object):
             for ind, joint in enumerate(limb_interface.joint_names()):
                 angles[joint] = q[ind]
             limb_interface.set_joint_positions(angles)
-            rospy.sleep(.1)
+            rospy.sleep(.05)
         
+        rospy.sleep(.2)
         # Publish next state               
         self._pub_state.publish(1)
         self._done = True

@@ -73,12 +73,14 @@ class Trajectory(object):
             angles = limb_interface.joint_angles()
             for ind, joint in enumerate(limb_interface.joint_names()):
                 angles[joint] = q[ind]
-            rospy.sleep(.1)
+            rospy.sleep(.07)
             
             # Send joint move command
             limb_interface.set_joint_positions(angles)
         
         # Publish state and hand position
+
+        rospy.sleep(1)
         rospy.loginfo(4) 
         self._pub_state.publish(4)                    
         rospy.loginfo(pos)
