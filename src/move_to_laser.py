@@ -111,8 +111,10 @@ class Trajectory(object):
         xmod = xstart
         zmin = 0.12
         
-        while self._laserscan.range > zmin:
+        while self._laserscan.range > zmin: #loop checking to see if e-e is close enough to table
             print("while")
+
+            #keep all posiiton and orientation of e-e except for height the same for each itteration of loop
             xmod.position.x = xstart.position.x
             xmod.position.y = xstart.position.y
 
@@ -121,9 +123,12 @@ class Trajectory(object):
             xmod.orientation.z = xstart.orientation.z
             xmod.orientation.w = xstart.orientation.w
 
+            #checks to see if ranger is maked out (too far from sruface to register reading) and moves a fixed distance if true
             if self._laserscan.range >= self._laserscan.max_range:
                 rospy.loginfo('moving down')
                 xmod.position.z = xmod.position.z - 0.1
+
+            #If in range to get a reading, moves the e-e down by ammount porportional to the range reading
             else:
                 #if (self._laserscan.range - zmin) > 0.05:
                 rospy.loginfo('modding position')
@@ -133,8 +138,10 @@ class Trajectory(object):
             
             rospy.loginfo(xmod.position.z)
 #            rospy.loginfo(limb_interface.endpoint_pose())
-            self.execute_move(xmod)
+            self.execute_move(xmod) #Carteasian straight line trajectory to modified (lower z) e-e position
             
+
+        #Changes the state to 5 in the state machine when e-e is close enough to pick up block
         pub_state = rospy.Publisher('state', Int16, queue_size = 10, latch=True)
         rospy.loginfo(5) 
         rospy.sleep(.2)
