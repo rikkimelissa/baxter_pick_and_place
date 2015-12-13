@@ -12,9 +12,9 @@ from geometry_msgs.msg import PoseStamped, Pose, Point, Quaternion, QuaternionSt
 from std_msgs.msg import Header, Int16
 from quat import quat_to_so3, so3_to_quat
 from functions import RpToTrans, TransToRp
-state = 1
+state = 0
     
-def xdisplay_pub(data,count):
+def xdisplay_pub(data):
     #print "entered"
     img_pub = rospy.Publisher('/robot/xdisplay', Image, latch=True, queue_size=1)
     img_pub.publish(data)
@@ -31,7 +31,7 @@ def main_func():
     rospy.init_node('tag_select', anonymous=False)
     rate = rospy.Rate(10) # 10hz
     listener = tf.TransformListener()
-    rtime = rospy.Time(0)   
+    #rtime = rospy.Time(0)   
 
     #Initialize variables and empty lists
     trans = []
@@ -41,16 +41,16 @@ def main_func():
     #tag_pose = Pose()
     tag_found = False
     global state
-    state = 1
 
 
     ###Define Subsribers and Publishers
     #set callback for state
 
     rospy.Subscriber('state',Int16,set_state_callback)
-    rospy.Subscriber("/cameras/right_hand_camera/image", Image,xdisplay_pub,count)
+    rospy.Subscriber("/cameras/right_hand_camera/image", Image,xdisplay_pub)
     state_pub = rospy.Publisher('state', Int16, queue_size=10, latch=True)
     tag_pub = rospy.Publisher('block_position', Pose, queue_size = 10, latch=True)
+    goal_pub = rospy.Publisher('goal', Int16, queue_size = 10, latch=True)
 
     #Sleep Before entering loop
     rospy.sleep(.5)
@@ -72,28 +72,41 @@ def main_func():
 
         ###Main State Machine Loop - Only run while state_callback is 1            
         while state == 1:# and tag_found == False:  
-
+            rospy.loginfo("Entered State 1")
+            rtime = rospy.Time.now()
             trans = []
             rot = []
             dist = []
             id_list = []
-            del posCB,quatCB,posWC,quatWC,posWB,quatWB
+            
             tag_found = False
+            
+            rospy.sleep(.15)
             print state
 
             ##For loop to search through tf frames of markers
             for n in range(1,7):
                 marker_id = 'ar_marker_%d'%n
-                tag_found = listener.frameExists(marker_id)
-                print "Marker list: AR_Marker", n, "esist:", tag_found
+                #tag_found = listener.frameExists(marker_id)
                 #print "Marker found is:", 'ar_marker_%d'%n
-
+                
+                #Check to see if the frames exists for the marker
+                if listener.frameExists("/right_hand_camera") and listener.frameExists(marker_id):
+                #set the time for the latest lookup
+                    rtime1 = listener.getLatestCommonTime("/right_hand_camera", marker_id)
+                    
+                #check to see if this time is greater that time at beginning of loop
+                    if rtime1 > rtime:
+                        #set the tag_found to true
+                        tag_found = True  
+                        rtime1 = rtime
+                print "Marker list: AR_Marker", n, "exist:", tag_found
                 ##when a frame is found for a particular Marker "n" add to list
                 ##only 1 addition per "n" in for
                 if tag_found == True: 
                     #print "looking at tag:",n
                     #(transWC,rotWC) = listener.lookupTransform('base', 'right_hand_camera', rtime)
-                    posCB,quatCB = listener.lookupTransform('right_hand_camera', marker_id, rtime)
+                    posCB,quatCB = listener.lookupTransform('right_hand_camera', marker_id, rospy.Time(0))
                     #print "posCB:", posCB
                     #print "quatCB", quatCB
                     trans.append(posCB)
@@ -145,7 +158,7 @@ def main_func():
                 bpos = Pose()
                 bpos.position.x = posWB[0]
                 bpos.position.y = posWB[1]
-                bpos.position.z = -.02 #posWB[2]
+                bpos.position.z = -.1489 #posWB[2]
                 bpos.orientation.x = .99 
                 bpos.orientation.y = -.024
                 bpos.orientation.z = .024 
@@ -158,14 +171,18 @@ def main_func():
             ##PUBLISH TAG if it Exists
             if tag_found == True:
                 #Set locally and publish new state
-                state = 2
-                state_pub.publish(2)
+                if tag_selected < 3:
+                    goal_pub.publish(1)
+                else:
+                    goal_pub.publish(2)                 
                 rospy.loginfo(2)
+                state_pub.publish(2)                  
                 #publish tage Pose
                 tag_pub.publish(bpos)
                 print "tag selected", tag_selected  
                 print state
-
+                del posCB,quatCB,posWC,quatWC,posWB,quatWB
+                
         ###Part of Main While
         rate.sleep()
 
